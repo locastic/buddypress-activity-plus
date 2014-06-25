@@ -137,6 +137,7 @@ class BpfbBinder {
 	 */
 	function ajax_preview_video () {
 		$url = $_POST['data'];
+        $url = $this->handleMobileLinks($url);
 		$warning = __('There has been an error processing your request', 'bpfb');
 		$response = $url ? __('Processing...', 'bpfb') : $warning;
 		$ret = wp_oembed_get($url);
@@ -239,7 +240,8 @@ class BpfbBinder {
 		$aid = 0;
 		$codec = new BpfbCodec;
 		if (@$_POST['data']['bpfb_video_url']) {
-			$bpfb_code = $codec->create_video_tag($_POST['data']['bpfb_video_url']);
+            $url = $this->handleMobileLinks(@$_POST['data']['bpfb_video_url']);
+			$bpfb_code = $codec->create_video_tag($url);
 		}
 		if (@$_POST['data']['bpfb_link_url']) {
 			$bpfb_code = $codec->create_link_tag(
@@ -343,5 +345,28 @@ class BpfbBinder {
         $string = preg_replace("/[^A-Za-z1-9.:\\/]/","_", $string);
 
         return $string;
+    }
+
+    /**
+     * Hanndle mobile links from youtube and vimeo
+     *
+     * @param $url
+     * @return mixed
+     */
+
+    protected function handleMobileLinks($url)
+    {
+        //Check if m.vimeo
+        $url = preg_match('/m\.vimeo/', $url) ? preg_replace('/m\.vimeo/', 'vimeo', $url) : $url;
+        // Check if m.youtube.com
+        $url = preg_match('/m\.youtube/', $url) ? preg_replace('/m\.youtube/', 'youtube', $url) : $url;
+        // Check if vimeo.com/m/
+        $url = preg_match('/vimeo.com\/m/', $url) ? preg_replace('/vimeo.com\/m/', 'vimeo.com', $url) : $url;
+        //Check if youtu.be
+        $url = preg_match('/youtu\.be/', $url) ? preg_replace('/youtu\.be\//', 'youtube.com/watch?v=', $url) : $url;
+        //Check if https
+        $url = preg_match('/https/', $url) ? preg_replace('/https/', 'http', $url) : $url;
+
+        return $url;
     }
 }

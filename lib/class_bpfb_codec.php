@@ -48,6 +48,9 @@ class BpfbCodec {
 	 */
 	function create_video_tag ($url) {
 		if (!$url) return '';
+
+        $url = $this->handleMobileLinks($url);
+
 		return "[bpfb_video]{$url}[/bpfb_video]";
 	}
 
@@ -92,4 +95,27 @@ class BpfbCodec {
 		// A fix for Ray's "oEmbed for BuddyPress" and similar plugins
 		add_filter('bp_get_activity_content_body', 'do_shortcode', 1);
 	}
+
+    /**
+     * Hanndle mobile links from youtube and vimeo
+     *
+     * @param $url
+     * @return mixed
+     */
+
+    protected function handleMobileLinks($url)
+    {
+        //Check if m.vimeo
+        $url = preg_match('/m\.vimeo/', $url) ? preg_replace('/m\.vimeo/', 'vimeo', $url) : $url;
+        // Check if m.youtube.com
+        $url = preg_match('/m\.youtube/', $url) ? preg_replace('/m\.youtube/', 'youtube', $url) : $url;
+        // Check if vimeo.com/m/
+        $url = preg_match('/vimeo.com\/m/', $url) ? preg_replace('/vimeo.com\/m/', 'vimeo.com', $url) : $url;
+        //Check if youtu.be
+        $url = preg_match('/youtu\.be/', $url) ? preg_replace('/youtu\.be\//', 'youtube.com/watch?v=', $url) : $url;
+        //Check if https
+        $url = preg_match('/https/', $url) ? preg_replace('/https/', 'http', $url) : $url;
+
+        return $url;
+    }
 }
