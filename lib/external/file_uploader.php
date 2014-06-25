@@ -142,6 +142,8 @@ class qqFileUploader {
             }
         }
 
+        $filename = $this->removeSpecialChars($filename);
+
         if ($this->file->save($uploadDirectory . $filename . '.' . $ext)){
             return array('success'=>true, 'file'=> $filename . '.' . $ext);
         } else {
@@ -149,5 +151,20 @@ class qqFileUploader {
                 'The upload was cancelled, or server error encountered');
         }
 
+    }
+
+    /**
+     * Remove special characters
+     *
+     * @param $string
+     * @return mixed
+     */
+
+    protected function removeSpecialChars($string)
+    {
+        // replace everything NOT in the sets you specified with an underscore
+        $string = preg_replace("/[^A-Za-z1-9.:\\/]/","_", $string);
+
+        return $string;
     }
 }

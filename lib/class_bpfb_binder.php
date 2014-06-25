@@ -45,6 +45,7 @@ class BpfbBinder {
 		}
 
 		foreach ($imgs as $img) {
+            $img = $this->removeSpecialChars($img);
 			if (preg_match('!^' . preg_quote('http://') . '!i', $img)) { // Just add remote images
 				$ret[] = $img;
 				continue;
@@ -328,4 +329,19 @@ class BpfbBinder {
 		// Step 3: Register and process shortcodes
 		BpfbCodec::register();
 	}
+
+    /**
+     * Remove special characters
+     *
+     * @param $string
+     * @return mixed
+     */
+
+    protected function removeSpecialChars($string)
+    {
+        // replace everything NOT in the sets you specified with an underscore
+        $string = preg_replace("/[^A-Za-z1-9.:\\/]/","_", $string);
+
+        return $string;
+    }
 }
